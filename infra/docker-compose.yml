@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7
+    container_name: payment-redis
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: payment-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  nacos:
+    image: nacos/nacos-server:v2.3.2
+    container_name: payment-nacos
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    environment:
+      MODE: standalone
+      SPRING_DATASOURCE_PLATFORM: ""
+
+  sentinel:
+    image: bladex/sentinel-dashboard:1.8.8
+    container_name: payment-sentinel
+    ports:
+      - "8858:8858"
+
+  seata:
+    image: seataio/seata-server:1.6.1
+    container_name: payment-seata
+    ports:
+      - "8091:8091"
+      - "7091:7091"
+    environment:
+      SEATA_IP: 127.0.0.1
+      SEATA_PORT: 8091
+

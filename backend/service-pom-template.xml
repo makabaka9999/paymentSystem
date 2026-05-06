@@ -1,0 +1,8 @@
+<!-- Documentation-only template for new services. Existing services each keep a concrete pom.xml. -->
+<dependencies>
+    <dependency>common</dependency>
+    <dependency>spring-boot-starter-web or spring-cloud-starter-gateway</dependency>
+    <dependency>nacos-discovery/config</dependency>
+    <dependency>sentinel</dependency>
+    <dependency>redis/rabbitmq/seata as needed</dependency>
+</dependencies>

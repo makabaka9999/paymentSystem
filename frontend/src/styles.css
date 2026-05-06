@@ -1,0 +1,168 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: #172033;
+  background: #f5f7fb;
+  font-family: Inter, "Microsoft YaHei", Arial, sans-serif;
+}
+
+.shell {
+  min-height: 100vh;
+}
+
+.sidebar {
+  background: #111827;
+  color: #fff;
+}
+
+.brand {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.nav {
+  border-right: 0;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.role {
+  margin-left: 8px;
+  color: #64748b;
+}
+
+.login-row {
+  display: grid;
+  grid-template-columns: 190px 150px 72px;
+  gap: 8px;
+}
+
+.content {
+  padding: 24px;
+}
+
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.toolbar {
+  display: grid;
+  grid-template-columns: 1fr 280px 90px;
+  gap: 12px;
+  align-items: center;
+}
+
+h1 {
+  margin: 0 0 20px;
+  font-size: 28px;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.product-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  min-height: 260px;
+  display: grid;
+  gap: 10px;
+}
+
+.thumb,
+.detail-media {
+  min-height: 120px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #0f766e, #2563eb);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.row,
+.action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.detail {
+  display: grid;
+  grid-template-columns: minmax(280px, 460px) 1fr;
+  gap: 28px;
+}
+
+.detail-media {
+  min-height: 360px;
+}
+
+.detail-panel {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 24px;
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.price {
+  font-size: 26px;
+  color: #dc2626;
+}
+
+.narrow {
+  max-width: 620px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.split > div {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+@media (max-width: 860px) {
+  .sidebar {
+    display: none;
+  }
+  .topbar,
+  .toolbar,
+  .detail,
+  .split,
+  .login-row {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,13 @@
+.m2/
+target/
+node_modules/
+dist/
+.npm-cache/
+coverage/
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+*.log
+*.tmp

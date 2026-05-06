@@ -1,0 +1,20 @@
+server:
+  port: 9008
+spring:
+  application:
+    name: payment-service
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/payment_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:localhost:8848}
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+seata:
+  enabled: true
+  application-id: payment-service
+  tx-service-group: payment-system-tx-group
