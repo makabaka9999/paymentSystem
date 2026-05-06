@@ -8,6 +8,7 @@ coverage/
 Thumbs.db
 .idea/
 .vscode/
+.codex/
 *.iml
 *.log
 *.tmp
