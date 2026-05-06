@@ -71,6 +71,23 @@ docker compose -f infra\docker-compose.yml up -d
 - RabbitMQ Management：`15672`
 - Sentinel Dashboard：`8858`
 
+## 启动后端服务
+
+先初始化本地 MySQL 分库，再启动 Redis、RabbitMQ、Nacos、Sentinel、Seata。随后打包并启动需要的服务：
+
+```powershell
+mvn -s infra\maven\settings.xml -DskipTests package
+java -jar backend\auth-service\target\auth-service-0.1.0-SNAPSHOT.jar
+java -jar backend\product-service\target\product-service-0.1.0-SNAPSHOT.jar
+java -jar backend\cart-service\target\cart-service-0.1.0-SNAPSHOT.jar
+java -jar backend\order-service\target\order-service-0.1.0-SNAPSHOT.jar
+java -jar backend\payment-service\target\payment-service-0.1.0-SNAPSHOT.jar
+java -jar backend\seckill-service\target\seckill-service-0.1.0-SNAPSHOT.jar
+java -jar backend\gateway-service\target\gateway-service-0.1.0-SNAPSHOT.jar
+```
+
+也可以按需启动 `user-service`、`inventory-service`、`merchant-service`、`admin-service`、`message-service`。网关端口是 `9000`，前端默认通过它访问后端 API。
+
 ## 构建和测试
 
 本项目已按你的本地仓库路径配置 Maven：
