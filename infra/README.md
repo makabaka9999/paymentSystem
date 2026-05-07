@@ -9,7 +9,7 @@
 | Nacos | http://localhost:8848/nacos | nacos / nacos |
 | RabbitMQ Management | http://localhost:15672 | guest / guest |
 | Sentinel Dashboard | http://localhost:8858 | sentinel / sentinel |
-| Seata Console | http://localhost:7091 | 默认无 |
+| Seata Console | http://localhost:7091 | seata / seata |
 
 ## 后端连接地址
 
