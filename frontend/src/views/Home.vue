@@ -11,7 +11,7 @@
         <h2>{{ product.name }}</h2>
         <p>{{ product.description }}</p>
         <div class="row">
-          <strong>￥{{ product.price }}</strong>
+          <strong>¥{{ product.price }}</strong>
           <span>库存 {{ product.stock }}</span>
         </div>
         <el-button type="primary" @click="$router.push(`/products/${product.id}`)">查看详情</el-button>

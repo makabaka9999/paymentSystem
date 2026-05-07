@@ -7,8 +7,8 @@
       <el-table-column prop="quantity" label="数量" width="120" />
     </el-table>
     <div class="action-bar">
-      <strong>合计 ￥{{ total }}</strong>
-      <el-button type="primary" @click="checkout">提交订单</el-button>
+      <strong>合计 ¥{{ total }}</strong>
+      <el-button type="primary" :disabled="items.length === 0" @click="checkout">提交订单</el-button>
     </div>
   </section>
 </template>

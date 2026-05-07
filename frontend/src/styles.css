@@ -13,6 +13,31 @@ body {
   min-height: 100vh;
 }
 
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #eef2f7;
+}
+
+.login-panel {
+  width: min(420px, 100%);
+  display: grid;
+  gap: 16px;
+  padding: 32px;
+  background: #fff;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
+}
+
+.login-brand {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f766e;
+}
+
 .sidebar {
   background: #111827;
   color: #fff;
@@ -43,12 +68,6 @@ body {
 .role {
   margin-left: 8px;
   color: #64748b;
-}
-
-.login-row {
-  display: grid;
-  grid-template-columns: 190px 150px 72px;
-  gap: 8px;
 }
 
 .content {
@@ -161,8 +180,7 @@ h1 {
   .topbar,
   .toolbar,
   .detail,
-  .split,
-  .login-row {
+  .split {
     grid-template-columns: 1fr;
   }
 }

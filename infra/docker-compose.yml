@@ -1,6 +1,17 @@
-version: "3.9"
-
 services:
+  mysql:
+    image: mysql:8.0
+    container_name: payment-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      TZ: Asia/Shanghai
+    volumes:
+      - ./sql/init-local-mysql.sql:/docker-entrypoint-initdb.d/init-local-mysql.sql:ro
+      - payment-mysql-data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
   redis:
     image: redis:7
     container_name: payment-redis
@@ -43,3 +54,5 @@ services:
       SEATA_IP: 127.0.0.1
       SEATA_PORT: 8091
 
+volumes:
+  payment-mysql-data:
