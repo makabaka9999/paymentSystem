@@ -1,0 +1,53 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        enabled: false
+      config:
+        enabled: false
+    discovery:
+      enabled: false
+    service-registry:
+      auto-registration:
+        enabled: false
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: '*'
+            allowedMethods: '*'
+            allowedHeaders: '*'
+      routes:
+        - id: auth-local
+          uri: http://localhost:9001
+          predicates: [ Path=/api/auth/** ]
+        - id: products-local
+          uri: http://localhost:9004
+          predicates: [ Path=/api/products/** ]
+        - id: cart-local
+          uri: http://localhost:9006
+          predicates: [ Path=/api/cart/** ]
+        - id: orders-local
+          uri: http://localhost:9007
+          predicates: [ Path=/api/orders/** ]
+        - id: payments-local
+          uri: http://localhost:9008
+          predicates: [ Path=/api/payments/** ]
+        - id: seckill-local
+          uri: http://localhost:9009
+          predicates: [ Path=/api/seckill/** ]
+        - id: merchant-local
+          uri: http://localhost:9010
+          predicates: [ Path=/api/merchant/** ]
+        - id: admin-local
+          uri: http://localhost:9011
+          predicates: [ Path=/api/admin/** ]
+        - id: users-local
+          uri: http://localhost:9003
+          predicates: [ Path=/api/users/** ]
+        - id: messages-local
+          uri: http://localhost:9012
+          predicates: [ Path=/api/messages/** ]
