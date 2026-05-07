@@ -1,6 +1,7 @@
 package com.paymentsystem.order;
 
 import com.paymentsystem.common.OrderStatus;
+import com.paymentsystem.order.domain.OrderStatusMachine;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

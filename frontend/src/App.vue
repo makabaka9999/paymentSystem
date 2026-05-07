@@ -1,5 +1,6 @@
 <template>
-  <el-container class="shell">
+  <router-view v-if="$route.path === '/login'" />
+  <el-container v-else class="shell">
     <el-aside width="236px" class="sidebar">
       <div class="brand">PayMVP</div>
       <el-menu router :default-active="$route.path" class="nav">
@@ -17,11 +18,7 @@
           <strong>{{ session.user?.username || '未登录' }}</strong>
           <span class="role">{{ session.user?.role || 'GUEST' }}</span>
         </div>
-        <div class="login-row">
-          <el-input v-model="username" size="small" placeholder="账号 user/merchant/admin" />
-          <el-input v-model="password" size="small" type="password" placeholder="密码 password" />
-          <el-button size="small" type="primary" @click="login">登录</el-button>
-        </div>
+        <el-button size="small" @click="logout">退出</el-button>
       </el-header>
       <el-main class="content">
         <router-view />
@@ -31,14 +28,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useSessionStore } from './stores/session'
 
+const router = useRouter()
 const session = useSessionStore()
-const username = ref('user')
-const password = ref('password')
 
-async function login() {
-  await session.login(username.value, password.value)
+function logout() {
+  session.logout()
+  router.push('/login')
 }
 </script>
