@@ -1,0 +1,159 @@
+CREATE DATABASE IF NOT EXISTS youxuan_mall DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE youxuan_mall;
+
+CREATE TABLE users (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '用户ID',
+  account VARCHAR(120) NOT NULL UNIQUE COMMENT '手机号或邮箱',
+  password_hash VARCHAR(255) NOT NULL COMMENT '加密后的密码',
+  nickname VARCHAR(80) NOT NULL COMMENT '昵称',
+  role ENUM('USER','MERCHANT','ADMIN') NOT NULL DEFAULT 'USER' COMMENT '角色',
+  status ENUM('ACTIVE','DISABLED') NOT NULL DEFAULT 'ACTIVE' COMMENT '账号状态',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+) COMMENT='用户表';
+
+CREATE TABLE shops (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '店铺ID',
+  owner_id BIGINT NOT NULL COMMENT '店主用户ID',
+  name VARCHAR(120) NOT NULL COMMENT '店铺名称',
+  slogan VARCHAR(255) COMMENT '店铺简介',
+  category VARCHAR(60) COMMENT '主营类目',
+  score DECIMAL(3,2) NOT NULL DEFAULT 5.00 COMMENT '店铺评分',
+  status ENUM('PENDING','ACTIVE','SUSPENDED') NOT NULL DEFAULT 'PENDING' COMMENT '店铺状态',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_shops_owner (owner_id)
+) COMMENT='店铺表';
+
+CREATE TABLE product_categories (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  parent_id BIGINT DEFAULT NULL COMMENT '父分类ID',
+  name VARCHAR(80) NOT NULL COMMENT '分类名称',
+  sort_order INT NOT NULL DEFAULT 0 COMMENT '排序'
+) COMMENT='商品分类表';
+
+CREATE TABLE products (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '商品ID',
+  shop_id BIGINT NOT NULL COMMENT '店铺ID',
+  category_id BIGINT NOT NULL COMMENT '分类ID',
+  title VARCHAR(180) NOT NULL COMMENT '商品标题',
+  description TEXT COMMENT '商品详情',
+  cover_url VARCHAR(500) COMMENT '主图URL',
+  price DECIMAL(10,2) NOT NULL COMMENT '最低销售价',
+  origin_price DECIMAL(10,2) COMMENT '划线价',
+  sales_count INT NOT NULL DEFAULT 0 COMMENT '销量',
+  rating DECIMAL(3,2) NOT NULL DEFAULT 5.00 COMMENT '评分',
+  status ENUM('DRAFT','PENDING','ON_SALE','OFF_SALE','REJECTED') NOT NULL DEFAULT 'PENDING' COMMENT '商品状态',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_products_shop (shop_id),
+  INDEX idx_products_category_status (category_id, status),
+  FULLTEXT INDEX ft_products_title_desc (title, description)
+) COMMENT='商品表';
+
+CREATE TABLE product_skus (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'SKU ID',
+  product_id BIGINT NOT NULL COMMENT '商品ID',
+  sku_name VARCHAR(120) NOT NULL COMMENT '规格名称',
+  price DECIMAL(10,2) NOT NULL COMMENT 'SKU价格',
+  stock INT NOT NULL DEFAULT 0 COMMENT '库存',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_skus_product (product_id)
+) COMMENT='商品SKU表';
+
+CREATE TABLE cart_items (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '购物车项ID',
+  user_id BIGINT NOT NULL COMMENT '用户ID',
+  product_id BIGINT NOT NULL COMMENT '商品ID',
+  sku_id BIGINT NOT NULL COMMENT 'SKU ID',
+  quantity INT NOT NULL COMMENT '数量',
+  selected TINYINT(1) NOT NULL DEFAULT 1 COMMENT '是否勾选',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_cart_user_sku (user_id, sku_id)
+) COMMENT='购物车表';
+
+CREATE TABLE user_addresses (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  user_id BIGINT NOT NULL COMMENT '用户ID',
+  receiver VARCHAR(80) NOT NULL COMMENT '收货人',
+  phone VARCHAR(30) NOT NULL COMMENT '手机号',
+  province VARCHAR(60) NOT NULL,
+  city VARCHAR(60) NOT NULL,
+  district VARCHAR(60) NOT NULL,
+  detail VARCHAR(255) NOT NULL COMMENT '详细地址',
+  is_default TINYINT(1) NOT NULL DEFAULT 0 COMMENT '默认地址',
+  INDEX idx_addresses_user (user_id)
+) COMMENT='收货地址表';
+
+CREATE TABLE coupons (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '优惠券ID',
+  title VARCHAR(120) NOT NULL COMMENT '优惠券名称',
+  threshold_amount DECIMAL(10,2) NOT NULL DEFAULT 0 COMMENT '使用门槛',
+  discount_amount DECIMAL(10,2) NOT NULL COMMENT '优惠金额',
+  start_at DATETIME NOT NULL COMMENT '生效时间',
+  end_at DATETIME NOT NULL COMMENT '失效时间',
+  status ENUM('ACTIVE','DISABLED') NOT NULL DEFAULT 'ACTIVE' COMMENT '状态'
+) COMMENT='优惠券表';
+
+CREATE TABLE user_coupons (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  user_id BIGINT NOT NULL,
+  coupon_id BIGINT NOT NULL,
+  status ENUM('UNUSED','USED','EXPIRED') NOT NULL DEFAULT 'UNUSED',
+  received_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  used_at DATETIME NULL,
+  INDEX idx_user_coupons_user (user_id)
+) COMMENT='用户优惠券表';
+
+CREATE TABLE orders (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '订单ID',
+  order_no VARCHAR(40) NOT NULL UNIQUE COMMENT '订单号',
+  user_id BIGINT NOT NULL COMMENT '买家ID',
+  shop_id BIGINT NOT NULL COMMENT '店铺ID',
+  address_id BIGINT NOT NULL COMMENT '地址ID',
+  coupon_id BIGINT NULL COMMENT '优惠券ID',
+  goods_amount DECIMAL(10,2) NOT NULL COMMENT '商品总额',
+  discount_amount DECIMAL(10,2) NOT NULL DEFAULT 0 COMMENT '优惠金额',
+  freight_amount DECIMAL(10,2) NOT NULL DEFAULT 0 COMMENT '运费',
+  pay_amount DECIMAL(10,2) NOT NULL COMMENT '实付金额',
+  status ENUM('PENDING_PAYMENT','PENDING_SHIPMENT','PENDING_RECEIPT','COMPLETED','CANCELLED') NOT NULL DEFAULT 'PENDING_PAYMENT' COMMENT '订单状态',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  paid_at DATETIME NULL,
+  shipped_at DATETIME NULL,
+  completed_at DATETIME NULL,
+  INDEX idx_orders_user_status (user_id, status),
+  INDEX idx_orders_shop_status (shop_id, status)
+) COMMENT='订单表';
+
+CREATE TABLE order_items (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  order_id BIGINT NOT NULL COMMENT '订单ID',
+  product_id BIGINT NOT NULL COMMENT '商品ID',
+  sku_id BIGINT NOT NULL COMMENT 'SKU ID',
+  product_title VARCHAR(180) NOT NULL COMMENT '下单时商品标题快照',
+  sku_name VARCHAR(120) NOT NULL COMMENT '下单时SKU快照',
+  price DECIMAL(10,2) NOT NULL COMMENT '成交单价',
+  quantity INT NOT NULL COMMENT '数量',
+  INDEX idx_order_items_order (order_id)
+) COMMENT='订单明细表';
+
+CREATE TABLE reviews (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '评价ID',
+  user_id BIGINT NOT NULL COMMENT '用户ID',
+  product_id BIGINT NOT NULL COMMENT '商品ID',
+  order_item_id BIGINT NOT NULL COMMENT '订单明细ID',
+  rating TINYINT NOT NULL COMMENT '评分1-5',
+  content VARCHAR(1000) COMMENT '评价内容',
+  status ENUM('VISIBLE','HIDDEN') NOT NULL DEFAULT 'VISIBLE' COMMENT '展示状态',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_reviews_product (product_id)
+) COMMENT='评价表';
+
+CREATE TABLE favorites (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  user_id BIGINT NOT NULL,
+  product_id BIGINT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_favorites_user_product (user_id, product_id)
+) COMMENT='商品收藏表';
