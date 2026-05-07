@@ -8,12 +8,23 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * 商户商品接口控制器，提供商品维护、上下架和订单概览能力。
+ */
 @RestController
 @RequestMapping("/api/merchant")
 public class MerchantProductController {
+    /** 商户商品自增 ID 生成器。 */
     private final AtomicLong ids = new AtomicLong(300);
+    /** 以内存 Map 模拟商户商品存储。 */
     private final Map<Long, MerchantProduct> products = new ConcurrentHashMap<Long, MerchantProduct>();
 
+    /**
+     * 创建商户商品，初始为待审核状态。
+     *
+     * @param command 商品保存参数
+     * @return 商户商品视图
+     */
     @PostMapping("/products")
     public ApiResponse<MerchantProduct> create(@RequestBody ProductCommand command) {
         Long id = ids.incrementAndGet();
@@ -22,6 +33,13 @@ public class MerchantProductController {
         return ApiResponse.ok(product);
     }
 
+    /**
+     * 更新商户商品基础信息，并保留已有上下架状态。
+     *
+     * @param id 商品 ID
+     * @param command 商品保存参数
+     * @return 商户商品视图
+     */
     @PutMapping("/products/{id}")
     public ApiResponse<MerchantProduct> update(@PathVariable Long id, @RequestBody ProductCommand command) {
         MerchantProduct current = products.get(id);
@@ -30,16 +48,33 @@ public class MerchantProductController {
         return ApiResponse.ok(product);
     }
 
+    /**
+     * 将商户商品上架。
+     *
+     * @param id 商品 ID
+     * @return 商户商品视图
+     */
     @PutMapping("/products/{id}/on-sale")
     public ApiResponse<MerchantProduct> onSale(@PathVariable Long id) {
         return changeSaleState(id, true);
     }
 
+    /**
+     * 将商户商品下架。
+     *
+     * @param id 商品 ID
+     * @return 商户商品视图
+     */
     @PutMapping("/products/{id}/off-sale")
     public ApiResponse<MerchantProduct> offSale(@PathVariable Long id) {
         return changeSaleState(id, false);
     }
 
+    /**
+     * 查询商户订单概览。
+     *
+     * @return 商户订单列表
+     */
     @GetMapping("/orders")
     public ApiResponse<List<Map<String, Object>>> orders() {
         Map<String, Object> order = new HashMap<String, Object>();
@@ -49,6 +84,13 @@ public class MerchantProductController {
         return ApiResponse.ok(Arrays.asList(order));
     }
 
+    /**
+     * 变更商品上下架状态。
+     *
+     * @param id 商品 ID
+     * @param onSale 是否上架
+     * @return 商户商品视图
+     */
     private ApiResponse<MerchantProduct> changeSaleState(Long id, boolean onSale) {
         MerchantProduct current = products.get(id);
         if (current == null) {
@@ -57,46 +99,5 @@ public class MerchantProductController {
         MerchantProduct next = current.withSaleState(onSale);
         products.put(id, next);
         return ApiResponse.ok(next);
-    }
-
-    public static class ProductCommand {
-        private String name;
-        private String category;
-        private BigDecimal price;
-        private Integer stock;
-        private String description;
-        MerchantProduct toProduct(Long id, boolean onSale) { return new MerchantProduct(id, name, category, price, stock, description, onSale, "PENDING_APPROVAL"); }
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-        public String getCategory() { return category; }
-        public void setCategory(String category) { this.category = category; }
-        public BigDecimal getPrice() { return price; }
-        public void setPrice(BigDecimal price) { this.price = price; }
-        public Integer getStock() { return stock; }
-        public void setStock(Integer stock) { this.stock = stock; }
-        public String getDescription() { return description; }
-        public void setDescription(String description) { this.description = description; }
-    }
-    public static class MerchantProduct {
-        private Long id;
-        private String name;
-        private String category;
-        private BigDecimal price;
-        private Integer stock;
-        private String description;
-        private boolean onSale;
-        private String auditStatus;
-        public MerchantProduct(Long id, String name, String category, BigDecimal price, Integer stock, String description, boolean onSale, String auditStatus) {
-            this.id = id; this.name = name; this.category = category; this.price = price; this.stock = stock; this.description = description; this.onSale = onSale; this.auditStatus = auditStatus;
-        }
-        MerchantProduct withSaleState(boolean next) { return new MerchantProduct(id, name, category, price, stock, description, next, auditStatus); }
-        public Long getId() { return id; }
-        public String getName() { return name; }
-        public String getCategory() { return category; }
-        public BigDecimal getPrice() { return price; }
-        public Integer getStock() { return stock; }
-        public String getDescription() { return description; }
-        public boolean isOnSale() { return onSale; }
-        public String getAuditStatus() { return auditStatus; }
     }
 }

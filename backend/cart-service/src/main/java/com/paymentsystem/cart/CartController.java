@@ -10,11 +10,21 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 购物车接口控制器，负责查询、添加、更新和删除当前用户购物车商品。
+ */
 @RestController
 @RequestMapping("/api/cart")
 public class CartController {
+    /** 按用户 ID 隔离的内存购物车数据。 */
     private final Map<Long, Map<Long, CartItem>> carts = new ConcurrentHashMap<Long, Map<Long, CartItem>>();
 
+    /**
+     * 查询当前用户购物车。
+     *
+     * @param request HTTP 请求对象
+     * @return 当前用户购物车明细
+     */
     @GetMapping
     public ApiResponse<ArrayList<CartItem>> get(HttpServletRequest request) {
         Long userId = UserContext.from(request).getUserId();
@@ -22,6 +32,13 @@ public class CartController {
         return ApiResponse.ok(new ArrayList<CartItem>(userCart == null ? new ConcurrentHashMap<Long, CartItem>().values() : userCart.values()));
     }
 
+    /**
+     * 添加商品到当前用户购物车，已存在时累加数量。
+     *
+     * @param request HTTP 请求对象
+     * @param command 购物车操作参数
+     * @return 更新后的购物车明细
+     */
     @PostMapping("/items")
     public ApiResponse<ArrayList<CartItem>> add(HttpServletRequest request, @RequestBody CartCommand command) {
         Long userId = UserContext.from(request).getUserId();
@@ -31,6 +48,14 @@ public class CartController {
         return get(request);
     }
 
+    /**
+     * 更新指定 SKU 的购买数量。
+     *
+     * @param request HTTP 请求对象
+     * @param skuId 商品 SKU ID
+     * @param command 购物车操作参数
+     * @return 更新后的购物车明细
+     */
     @PutMapping("/items/{skuId}")
     public ApiResponse<ArrayList<CartItem>> update(HttpServletRequest request, @PathVariable Long skuId, @RequestBody CartCommand command) {
         Long userId = UserContext.from(request).getUserId();
@@ -42,6 +67,13 @@ public class CartController {
         return get(request);
     }
 
+    /**
+     * 从当前用户购物车删除指定 SKU。
+     *
+     * @param request HTTP 请求对象
+     * @param skuId 商品 SKU ID
+     * @return 更新后的购物车明细
+     */
     @DeleteMapping("/items/{skuId}")
     public ApiResponse<ArrayList<CartItem>> delete(HttpServletRequest request, @PathVariable Long skuId) {
         Long userId = UserContext.from(request).getUserId();
@@ -50,33 +82,5 @@ public class CartController {
             userCart.remove(skuId);
         }
         return get(request);
-    }
-
-    public static class CartItem {
-        private Long skuId;
-        private String productName;
-        private BigDecimal price;
-        private Integer quantity;
-        public CartItem(Long skuId, String productName, BigDecimal price, Integer quantity) { this.skuId = skuId; this.productName = productName; this.price = price; this.quantity = quantity; }
-        CartItem withQuantity(Integer nextQuantity) { return new CartItem(skuId, productName, price, Math.max(1, nextQuantity)); }
-        public Long getSkuId() { return skuId; }
-        public String getProductName() { return productName; }
-        public BigDecimal getPrice() { return price; }
-        public Integer getQuantity() { return quantity; }
-    }
-    public static class CartCommand {
-        private Long skuId;
-        private String productName;
-        private BigDecimal price;
-        private Integer quantity;
-        CartItem toItem() { return new CartItem(skuId, productName, price, getQuantity()); }
-        public Long getSkuId() { return skuId; }
-        public void setSkuId(Long skuId) { this.skuId = skuId; }
-        public String getProductName() { return productName; }
-        public void setProductName(String productName) { this.productName = productName; }
-        public BigDecimal getPrice() { return price; }
-        public void setPrice(BigDecimal price) { this.price = price; }
-        public Integer getQuantity() { return quantity == null ? 1 : quantity; }
-        public void setQuantity(Integer quantity) { this.quantity = quantity; }
     }
 }

@@ -11,18 +11,32 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * 认证接口控制器，提供演示账号注册、登录和当前用户信息查询能力。
+ */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+    /** 演示用户自增主键生成器。 */
     private final AtomicLong ids = new AtomicLong(1000);
+    /** 以内存 Map 模拟用户账号存储。 */
     private final Map<String, UserAccount> users = new ConcurrentHashMap<String, UserAccount>();
 
+    /**
+     * 初始化演示账号，便于前端和接口联调。
+     */
     public AuthController() {
         users.put("user", new UserAccount(1L, "user", "password", UserRole.USER));
         users.put("merchant", new UserAccount(2L, "merchant", "password", UserRole.MERCHANT));
         users.put("admin", new UserAccount(3L, "admin", "password", UserRole.ADMIN));
     }
 
+    /**
+     * 注册新用户，用户名重复时返回业务失败。
+     *
+     * @param request 注册请求参数
+     * @return 登录会话信息
+     */
     @PostMapping("/register")
     public ApiResponse<AuthSession> register(@RequestBody RegisterRequest request) {
         UserRole role = request.getRole() == null ? UserRole.USER : request.getRole();
@@ -34,6 +48,12 @@ public class AuthController {
         return ApiResponse.ok(session(created));
     }
 
+    /**
+     * 使用用户名和密码登录演示系统。
+     *
+     * @param request 登录请求参数
+     * @return 登录会话信息
+     */
     @PostMapping("/login")
     public ApiResponse<AuthSession> login(@RequestBody LoginRequest request) {
         UserAccount account = users.get(request.getUsername());
@@ -43,6 +63,12 @@ public class AuthController {
         return ApiResponse.ok(session(account));
     }
 
+    /**
+     * 查询当前请求中的用户信息，未携带网关注入头时返回默认演示用户。
+     *
+     * @param request HTTP 请求对象
+     * @return 当前用户基础信息
+     */
     @GetMapping("/me")
     public ApiResponse<Map<String, Object>> me(HttpServletRequest request) {
         Map<String, Object> data = new HashMap<String, Object>();
@@ -52,63 +78,14 @@ public class AuthController {
         return ApiResponse.ok(data);
     }
 
+    /**
+     * 根据账号生成演示访问令牌和会话响应。
+     *
+     * @param account 用户账号
+     * @return 会话响应对象
+     */
     private AuthSession session(UserAccount account) {
         String token = "demo." + account.getId() + "." + account.getRole() + "." + Instant.now().toEpochMilli();
         return new AuthSession(token, account.getId(), account.getUsername(), account.getRole());
-    }
-
-    public static class RegisterRequest {
-        private String username;
-        private String password;
-        private UserRole role;
-        public String getUsername() { return username; }
-        public void setUsername(String username) { this.username = username; }
-        public String getPassword() { return password; }
-        public void setPassword(String password) { this.password = password; }
-        public UserRole getRole() { return role; }
-        public void setRole(UserRole role) { this.role = role; }
-    }
-
-    public static class LoginRequest {
-        private String username;
-        private String password;
-        public String getUsername() { return username; }
-        public void setUsername(String username) { this.username = username; }
-        public String getPassword() { return password; }
-        public void setPassword(String password) { this.password = password; }
-    }
-
-    public static class AuthSession {
-        private String accessToken;
-        private Long userId;
-        private String username;
-        private UserRole role;
-        public AuthSession(String accessToken, Long userId, String username, UserRole role) {
-            this.accessToken = accessToken;
-            this.userId = userId;
-            this.username = username;
-            this.role = role;
-        }
-        public String getAccessToken() { return accessToken; }
-        public Long getUserId() { return userId; }
-        public String getUsername() { return username; }
-        public UserRole getRole() { return role; }
-    }
-
-    private static class UserAccount {
-        private Long id;
-        private String username;
-        private String password;
-        private UserRole role;
-        UserAccount(Long id, String username, String password, UserRole role) {
-            this.id = id;
-            this.username = username;
-            this.password = password;
-            this.role = role;
-        }
-        Long getId() { return id; }
-        String getUsername() { return username; }
-        String getPassword() { return password; }
-        UserRole getRole() { return role; }
     }
 }
